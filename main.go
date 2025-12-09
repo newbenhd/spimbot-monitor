@@ -67,7 +67,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		players := strings.Split(name, " ")
+		players := strings.Split(name, " and ")
 		playerA := strings.TrimSpace(players[0])
 		playerB := strings.TrimSpace(players[1])
 
@@ -87,14 +87,22 @@ func main() {
 	}
 	output := []Outcome{}
 	for k, v := range ptCache {
-		output = append(output, Outcome{Key: k, Value: (float32(v) / float32(gameCache[k])) * 100})
+		if gameCache[k] == 0 {
+			output = append(output, Outcome{Key: k, Value: 0.0})
+		} else {
+			output = append(output, Outcome{Key: k, Value: (float32(v) / float32(gameCache[k])) * 100})
+		}
 	}
 	sort.Slice(output, func(i, j int) bool {
 		return output[i].Value > output[j].Value
 	})
+	totalPlayers := 0
+	for range ptCache {
+		totalPlayers++
+	}
 
 	// query
 	for _, outcome := range output {
-		fmt.Printf("%s: %.f%%\n", outcome.Key, outcome.Value)
+		fmt.Printf("%s: %.f%% (%d/%d played)\n", outcome.Key, outcome.Value, gameCache[outcome.Key], totalPlayers)
 	}
 }
